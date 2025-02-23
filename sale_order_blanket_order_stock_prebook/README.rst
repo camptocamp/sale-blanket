@@ -80,15 +80,15 @@ Authors
 Contributors
 ------------
 
-- Laurent Mignon\ laurent.mignon@acsone.eu (https://www.acsone.eu)
-- Jacques-Etienne Baudoux (BCIM) je@bcim.be
+-  Laurent Mignon\ laurent.mignon@acsone.eu (https://www.acsone.eu)
+-  Jacques-Etienne Baudoux (BCIM) je@bcim.be
 
 Other credits
 -------------
 
 The development of this module has been financially supported by:
 
-- ALCYON Belux
+-  ALCYON Belux
 
 Maintainers
 -----------
