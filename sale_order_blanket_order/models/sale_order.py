@@ -646,6 +646,7 @@ class SaleOrder(models.Model):
         We will create a call-off order for the remaining quantity of the blanket order.
         and confirm it.
         """
+        delivery_product_ids = self.env["delivery.carrier"].search([]).product_id.ids
         for record in self:
             order_lines = []
             for line in record.order_line:
@@ -663,6 +664,11 @@ class SaleOrder(models.Model):
                         )
                     )
             if order_lines:
+                product_ids = [vals.get("product_id") for __, __, vals in order_lines]
+                if all(p_id in delivery_product_ids for p_id in product_ids):
+                    # Prevent the creation of call-off orders if the remaining products
+                    # to deliver consist only of delivery products
+                    continue
                 call_off_order = self.env["sale.order"].create(
                     record._prepare_call_of_vals_to_deliver_blanket_remaining_qty()
                 )
