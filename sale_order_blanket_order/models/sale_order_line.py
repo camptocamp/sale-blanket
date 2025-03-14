@@ -431,6 +431,7 @@ class SaleOrderLine(models.Model):
             line.qty_available_today = blanket_line.qty_available_today
         return res
 
+    @api.depends("order_type")
     def _compute_qty_to_deliver(self):
         # Overload to consider the call-off order lines in the computation
         # For these lines the qty to deliver is the same as the product_uom_qty
