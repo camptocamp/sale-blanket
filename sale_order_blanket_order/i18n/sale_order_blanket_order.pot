@@ -4,10 +4,8 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 16.0+e\n"
+"Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-19 09:27+0000\n"
-"PO-Revision-Date: 2024-12-19 09:27+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -41,6 +39,12 @@ msgstr ""
 #: code:addons/sale_order_blanket_order/models/sale_order.py:0
 #, python-format
 msgid "A call-off order must have a blanket order."
+msgstr ""
+
+#. module: sale_order_blanket_order
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_product_product__allow_blanket_order_overlap
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_product_template__allow_blanket_order_overlap
+msgid "Allow Blanket Order Overlap"
 msgstr ""
 
 #. module: sale_order_blanket_order
@@ -83,6 +87,11 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sale_order_blanket_order.sale_order_line_search_view
 #: model_terms:ir.ui.view,arch_db:sale_order_blanket_order.sale_order_search_view
 msgid "Blanket Orders"
+msgstr ""
+
+#. module: sale_order_blanket_order
+#: model_terms:ir.ui.view,arch_db:sale_order_blanket_order.product_template_form_view
+msgid "Blanket orders"
 msgstr ""
 
 #. module: sale_order_blanket_order
@@ -188,6 +197,15 @@ msgid ""
 msgstr ""
 
 #. module: sale_order_blanket_order
+#: model:ir.model.fields,help:sale_order_blanket_order.field_product_product__allow_blanket_order_overlap
+#: model:ir.model.fields,help:sale_order_blanket_order.field_product_template__allow_blanket_order_overlap
+msgid ""
+"If enabled, blanket orders for this product can have overlapping "
+"validityperiods. By default, overlap is not allowed, ensuring only one "
+"active blanket order applies at a time."
+msgstr ""
+
+#. module: sale_order_blanket_order
 #: model_terms:ir.ui.view,arch_db:sale_order_blanket_order.res_config_settings_form_view
 msgid ""
 "If this option is enabled, a call-off order will be generated from a sale order if the sale order contains products\n"
@@ -277,6 +295,11 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sale_order_blanket_order.sale_order_form_view
 #: model_terms:ir.ui.view,arch_db:sale_order_blanket_order.sale_order_line_form_view
 msgid "Picking moves"
+msgstr ""
+
+#. module: sale_order_blanket_order
+#: model:ir.model,name:sale_order_blanket_order.model_product_template
+msgid "Product"
 msgstr ""
 
 #. module: sale_order_blanket_order
@@ -395,6 +418,15 @@ msgstr ""
 
 #. module: sale_order_blanket_order
 #. odoo-python
+#: code:addons/sale_order_blanket_order/models/sale_order_line.py:0
+#, python-format
+msgid ""
+"The forecasted quantity cannot be less than the quantity already called by "
+"call-off orders."
+msgstr ""
+
+#. module: sale_order_blanket_order
+#. odoo-python
 #: code:addons/sale_order_blanket_order/models/sale_order.py:0
 #, python-format
 msgid ""
@@ -455,15 +487,6 @@ msgstr ""
 msgid ""
 "The product is not part of linked blanket order. (Product: '%(product)s', "
 "Order: '%(order)s', Blanket Order: '%(blanket_order)s')"
-msgstr ""
-
-#. module: sale_order_blanket_order
-#. odoo-python
-#: code:addons/sale_order_blanket_order/models/sale_order_line.py:0
-#, python-format
-msgid ""
-"The forecasted quantity cannot be less than the quantity already called by "
-"call-off orders."
 msgstr ""
 
 #. module: sale_order_blanket_order
