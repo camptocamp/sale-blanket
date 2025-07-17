@@ -284,8 +284,10 @@ class SaleOrder(models.Model):
     @api.depends("order_type", "order_line")
     def _compute_show_deliver_remaining(self):
         for order in self:
-            order.show_deliver_remaining = order.order_type == "blanket" and any(
-                line.call_off_remaining_qty > 0 for line in order.order_line
+            order.show_deliver_remaining = (
+                order.order_type == "blanket"
+                and order.state == "sale"
+                and any(line.call_off_remaining_qty > 0 for line in order.order_line)
             )
 
     def _check_blanket_reservation_strategy_editable(self, vals):
