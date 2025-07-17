@@ -43,7 +43,7 @@ class SaleOrderDelierRemainingWizardLine(models.TransientModel):
             if line.qty_to_deliver > line.call_off_remaining_qty:
                 raise UserError(
                     _(
-                        "The 'Quantity to Deliver' cannot be greater than the"
+                        "The 'Quantity to Deliver' cannot be greater than the "
                         "'Remaining Quantity'."
                     )
                 )
