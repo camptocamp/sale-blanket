@@ -4,8 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 16.0\n"
+"Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-07-17 14:30+0000\n"
+"PO-Revision-Date: 2025-07-17 14:30+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -32,6 +34,13 @@ msgstr ""
 #: code:addons/sale_order_blanket_order/models/sale_order.py:0
 #, python-format
 msgid "A blanket order cannot have a blanket order."
+msgstr ""
+
+#. module: sale_order_blanket_order
+#. odoo-python
+#: code:addons/sale_order_blanket_order/wizards/sale_order_deliver_remaining_wizard.py:0
+#, python-format
+msgid "A call off order should have at least one product."
 msgstr ""
 
 #. module: sale_order_blanket_order
@@ -139,6 +148,11 @@ msgid "Call-offs"
 msgstr ""
 
 #. module: sale_order_blanket_order
+#: model_terms:ir.ui.view,arch_db:sale_order_blanket_order.view_create_call_off_wizard_form
+msgid "Cancel"
+msgstr ""
+
+#. module: sale_order_blanket_order
 #: model:ir.model,name:sale_order_blanket_order.model_res_company
 msgid "Companies"
 msgstr ""
@@ -160,6 +174,41 @@ msgid "Create Call-Off from SO if possible"
 msgstr ""
 
 #. module: sale_order_blanket_order
+#: model_terms:ir.ui.view,arch_db:sale_order_blanket_order.view_create_call_off_wizard_form
+msgid "Create Call-off Order"
+msgstr ""
+
+#. module: sale_order_blanket_order
+#: model:ir.actions.act_window,name:sale_order_blanket_order.action_create_call_off_wizard
+#: model_terms:ir.ui.view,arch_db:sale_order_blanket_order.view_create_call_off_wizard_form
+msgid "Create Call-off Sale Order"
+msgstr ""
+
+#. module: sale_order_blanket_order
+#: model:ir.model,name:sale_order_blanket_order.model_sale_order_deliver_remaining_wizard
+msgid "Create Call-off Sale Order for remaining products"
+msgstr ""
+
+#. module: sale_order_blanket_order
+#. odoo-python
+#: code:addons/sale_order_blanket_order/models/sale_order.py:0
+#, python-format
+msgid "Create call-off sale order for products still to be delivered"
+msgstr ""
+
+#. module: sale_order_blanket_order
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order_deliver_remaining_wizard__create_uid
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order_deliver_remaining_wizard_line__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: sale_order_blanket_order
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order_deliver_remaining_wizard__create_date
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order_deliver_remaining_wizard_line__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: sale_order_blanket_order
 #: model_terms:ir.ui.view,arch_db:sale_order_blanket_order.sale_order_search_view
 msgid "Current Blanket Orders"
 msgstr ""
@@ -167,6 +216,17 @@ msgstr ""
 #. module: sale_order_blanket_order
 #: model:ir.model.fields.selection,name:sale_order_blanket_order.selection__sale_order__blanket_eol_strategy__deliver
 msgid "Deliver Remaining Quantity"
+msgstr ""
+
+#. module: sale_order_blanket_order
+#: model_terms:ir.ui.view,arch_db:sale_order_blanket_order.sale_order_form_view
+msgid "Deliver remaining"
+msgstr ""
+
+#. module: sale_order_blanket_order
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order_deliver_remaining_wizard__display_name
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order_deliver_remaining_wizard_line__display_name
+msgid "Display Name"
 msgstr ""
 
 #. module: sale_order_blanket_order
@@ -185,6 +245,12 @@ msgstr ""
 msgid ""
 "Generate a call-off order from a sales order if possible when the sales "
 "order is confirmed."
+msgstr ""
+
+#. module: sale_order_blanket_order
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order_deliver_remaining_wizard__id
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order_deliver_remaining_wizard_line__id
+msgid "ID"
 msgstr ""
 
 #. module: sale_order_blanket_order
@@ -254,6 +320,24 @@ msgid "Is Blanket Reservation Strategy Editable"
 msgstr ""
 
 #. module: sale_order_blanket_order
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order_deliver_remaining_wizard____last_update
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order_deliver_remaining_wizard_line____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: sale_order_blanket_order
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order_deliver_remaining_wizard__write_uid
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order_deliver_remaining_wizard_line__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: sale_order_blanket_order
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order_deliver_remaining_wizard__write_date
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order_deliver_remaining_wizard_line__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: sale_order_blanket_order
 #: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order__blanket_need_to_be_finalized
 msgid "Need to be Finalized"
 msgstr ""
@@ -279,6 +363,7 @@ msgid "Only call-off orders can be confirmed as call-off orders."
 msgstr ""
 
 #. module: sale_order_blanket_order
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order_deliver_remaining_wizard__order_id
 #: model:ir.model.fields.selection,name:sale_order_blanket_order.selection__sale_order__order_type__order
 msgid "Order"
 msgstr ""
@@ -292,6 +377,11 @@ msgid "Order Type"
 msgstr ""
 
 #. module: sale_order_blanket_order
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order_deliver_remaining_wizard_line__product_packaging_id
+msgid "Packaging"
+msgstr ""
+
+#. module: sale_order_blanket_order
 #: model_terms:ir.ui.view,arch_db:sale_order_blanket_order.sale_order_form_view
 #: model_terms:ir.ui.view,arch_db:sale_order_blanket_order.sale_order_line_form_view
 msgid "Picking moves"
@@ -299,7 +389,13 @@ msgstr ""
 
 #. module: sale_order_blanket_order
 #: model:ir.model,name:sale_order_blanket_order.model_product_template
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order_deliver_remaining_wizard_line__product_id
 msgid "Product"
+msgstr ""
+
+#. module: sale_order_blanket_order
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order_deliver_remaining_wizard__wizard_line_ids
+msgid "Products to Deliver"
 msgstr ""
 
 #. module: sale_order_blanket_order
@@ -308,8 +404,28 @@ msgid "Quantity remaining for Call-off"
 msgstr ""
 
 #. module: sale_order_blanket_order
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order_deliver_remaining_wizard_line__qty_to_deliver
+msgid "Quantity to Deliver"
+msgstr ""
+
+#. module: sale_order_blanket_order
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order_deliver_remaining_wizard_line__call_off_remaining_qty
+msgid "Remaining Quantity"
+msgstr ""
+
+#. module: sale_order_blanket_order
+#: model:ir.model,name:sale_order_blanket_order.model_sale_order_deliver_remaining_wizard_line
+msgid "Remaining product to deliver"
+msgstr ""
+
+#. module: sale_order_blanket_order
 #: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order__blanket_reservation_strategy
 msgid "Reservation Strategy"
+msgstr ""
+
+#. module: sale_order_blanket_order
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order_deliver_remaining_wizard_line__sale_order_line_id
+msgid "Sale Order Line"
 msgstr ""
 
 #. module: sale_order_blanket_order
@@ -320,6 +436,11 @@ msgstr ""
 #. module: sale_order_blanket_order
 #: model:ir.model,name:sale_order_blanket_order.model_sale_order_line
 msgid "Sales Order Line"
+msgstr ""
+
+#. module: sale_order_blanket_order
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order__show_deliver_remaining
+msgid "Show Deliver Remaining"
 msgstr ""
 
 #. module: sale_order_blanket_order
@@ -360,6 +481,21 @@ msgstr ""
 #. module: sale_order_blanket_order
 #: model:ir.model,name:sale_order_blanket_order.model_stock_rule
 msgid "Stock Rule"
+msgstr ""
+
+#. module: sale_order_blanket_order
+#. odoo-python
+#: code:addons/sale_order_blanket_order/wizards/sale_order_deliver_remaining_wizard.py:0
+#, python-format
+msgid ""
+"The 'Quantity to Deliver' cannot be greater than the 'Remaining Quantity'."
+msgstr ""
+
+#. module: sale_order_blanket_order
+#. odoo-python
+#: code:addons/sale_order_blanket_order/wizards/sale_order_deliver_remaining_wizard.py:0
+#, python-format
+msgid "The 'Quantity to Deliver' cannot be negative."
 msgstr ""
 
 #. module: sale_order_blanket_order
@@ -490,6 +626,7 @@ msgid ""
 msgstr ""
 
 #. module: sale_order_blanket_order
+#: model:ir.model.fields,help:sale_order_blanket_order.field_sale_order_deliver_remaining_wizard_line__call_off_remaining_qty
 #: model:ir.model.fields,help:sale_order_blanket_order.field_sale_order_line__call_off_remaining_qty
 msgid ""
 "The quantity remaining to consume by call-off orders in case of a blanket "
@@ -575,4 +712,14 @@ msgid ""
 "When this option is enabled, the system will automatically create call-off "
 "orders when a sales order is confirmed and some lines refer to a blanket "
 "order."
+msgstr ""
+
+#. module: sale_order_blanket_order
+#: model:ir.model.fields,help:sale_order_blanket_order.field_sale_order__show_deliver_remaining
+msgid "Whether to show the 'deliver remaining' button or not"
+msgstr ""
+
+#. module: sale_order_blanket_order
+#: model:ir.model.fields,field_description:sale_order_blanket_order.field_sale_order_deliver_remaining_wizard_line__wizard_id
+msgid "Wizard"
 msgstr ""
