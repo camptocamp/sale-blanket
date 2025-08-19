@@ -136,6 +136,17 @@
                 />
             </xpath>
 
+            <xpath expr="//header/*[1]" position="before">
+                <field name="show_deliver_remaining" invisible="1" />
+                <button
+                    name="action_deliver_remaining"
+                    string="Deliver remaining"
+                    class="oe_highlight"
+                    attrs="{'invisible': [('show_deliver_remaining', '=', False)]}"
+                    type="object"
+                />
+            </xpath>
+
         </field>
     </record>
 
