@@ -116,6 +116,11 @@ class SaleOrder(models.Model):
         states=READONLY_FIELD_STATES,
     )
 
+    show_deliver_remaining = fields.Boolean(
+        compute="_compute_show_deliver_remaining",
+        help="Whether to show the 'deliver remaining' button or not",
+    )
+
     def init(self):
         self._cr.execute(
             """
@@ -276,6 +281,13 @@ class SaleOrder(models.Model):
                 and order.order_type == "blanket"
             )
 
+    @api.depends("order_type", "order_line")
+    def _compute_show_deliver_remaining(self):
+        for order in self:
+            order.show_deliver_remaining = order.order_type == "blanket" and any(
+                line.call_off_remaining_qty > 0 for line in order.order_line
+            )
+
     def _check_blanket_reservation_strategy_editable(self, vals):
         if "blanket_reservation_strategy" in vals:
             for order in self:
@@ -313,6 +325,40 @@ class SaleOrder(models.Model):
             default_order_type="call_off",
         )
         return action
+
+    def action_deliver_remaining(self):
+        self.ensure_one()
+
+        # Create the wizard (but don't save it yet)
+        wizard = self.env["sale.order.deliver.remaining.wizard"].create(
+            {
+                "order_id": self.id,
+                "wizard_line_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "product_id": line.product_id.id,
+                            "product_packaging_id": line.product_packaging_id.id,
+                            "call_off_remaining_qty": line.call_off_remaining_qty,
+                            "qty_to_deliver": line.call_off_remaining_qty,
+                            "sale_order_line_id": line.id,
+                        },
+                    )
+                    for line in self.order_line
+                    if line.call_off_remaining_qty > 0
+                ],
+            }
+        )
+
+        return {
+            "name": _("Create call-off sale order for products still to be delivered"),
+            "type": "ir.actions.act_window",
+            "view_mode": "form",
+            "res_model": "sale.order.deliver.remaining.wizard",
+            "res_id": wizard.id,
+            "target": "new",
+        }
 
     def _action_confirm(self):
         # The confirmation process is different for each type of order
