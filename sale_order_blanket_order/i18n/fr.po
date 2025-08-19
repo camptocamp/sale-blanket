@@ -283,9 +283,10 @@ msgid ""
 "validityperiods. By default, overlap is not allowed, ensuring only one "
 "active blanket order applies at a time."
 msgstr ""
-"Si cette option est activée, les commandes globales pour ce produit peuvent avoir des "
-"périodes de validité qui se chevauchent. Par défaut, le chevauchement n'est pas autorisé, ce qui garantit qu'une seule "
-"commande globale active s'applique à la fois."
+"Si cette option est activée, les commandes globales pour ce produit peuvent "
+"avoir des périodes de validité qui se chevauchent. Par défaut, le "
+"chevauchement n'est pas autorisé, ce qui garantit qu'une seule commande "
+"globale active s'applique à la fois."
 
 #. module: sale_order_blanket_order
 #: model_terms:ir.ui.view,arch_db:sale_order_blanket_order.res_config_settings_form_view
@@ -559,7 +560,9 @@ msgstr "Règle de stock minimum"
 #, python-format
 msgid ""
 "The 'Quantity to Deliver' cannot be greater than the 'Remaining Quantity'."
-msgstr "La 'Quantité à Livrer' ne peut pas être plus grande que la 'Quantité restante à livrer'"
+msgstr ""
+"La 'Quantité à Livrer' ne peut pas être plus grande que la 'Quantité "
+"restante à livrer'"
 
 #. module: sale_order_blanket_order
 #. odoo-python
