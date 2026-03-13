@@ -43,13 +43,6 @@ class TestSaleNormalOrder(SaleOrderBlanketOrderCase):
         )
         cls.blanket_so_2.action_confirm()
 
-    @classmethod
-    def _set_call_off_auto_create_mode(cls, value):
-        # Enable the auto create mode
-        cls.env["res.config.settings"].create(
-            {"create_call_off_from_so_if_possible": True}
-        ).execute()
-
     @freezegun.freeze_time("2025-02-01")
     def test_normal_order(self):
         # ensure that the original sale order process
@@ -179,6 +172,61 @@ class TestSaleNormalOrder(SaleOrderBlanketOrderCase):
         blanquet_product_qty = sum(blanket_lines.mapped("product_uom_qty"))
         remaining_qty = sum(blanket_lines.mapped("call_off_remaining_qty"))
         self.assertEqual(blanquet_product_qty, remaining_qty + 1)
+
+    @freezegun.freeze_time("2025-02-01")
+    def test_call_off_auto_create_ignore_pack(self):
+        # A test where we've a SO with 1 product
+        # which is part of a blanket order but
+        # the blanket line is without packaging and the SO line
+        # is with packaging.
+        # The quantity of the product that is part of the blanket order
+        # is less than the quantity in the blanket order
+        self._set_call_off_auto_create_mode(True)
+        order = self.env["sale.order"].create(
+            {
+                "partner_id": self.partner.id,
+                "order_line": [
+                    Command.create(
+                        {
+                            "product_id": self.product_2.id,
+                            "product_uom_qty": 3,
+                            "price_unit": 100,
+                            "product_packaging_id": self.product_2_pack3.id,
+                        },
+                    ),
+                ],
+            }
+        )
+        with RecordCapturer(self.so_model, self.call_off_domain) as captured:
+            order.action_confirm()
+        new_order = captured.records
+        self.assertEqual(len(new_order), 1)
+        self.assertEqual(len(order.order_line), 0)
+        self.assertEqual(len(new_order.order_line), 1)
+        self.assertRecordValues(
+            new_order.order_line,
+            [
+                {
+                    "product_id": self.product_2.id,
+                    "product_uom_qty": 3.0,
+                    "price_unit": 0.0,
+                    "qty_to_deliver": 0.0,
+                    "qty_to_invoice": 0.0,
+                    "qty_delivered": 0.0,
+                    "price_tax": 0.0,
+                    "price_total": 0.0,
+                    "product_packaging_id": self.product_2_pack3.id,
+                    "tax_id": [],
+                }
+            ],
+        )
+
+        blanket_lines = self.blanket_so.order_line.filtered(
+            lambda line: line.product_id == self.product_2
+        )
+        blanquet_product_qty = sum(blanket_lines.mapped("product_uom_qty"))
+        remaining_qty = sum(blanket_lines.mapped("call_off_remaining_qty"))
+        self.assertEqual(blanquet_product_qty, remaining_qty + 3)
 
     @freezegun.freeze_time("2025-02-01")
     def test_multi_call_off_auto_create(self):
