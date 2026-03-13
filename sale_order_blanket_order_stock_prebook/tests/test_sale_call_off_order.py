@@ -38,7 +38,7 @@ class TestSaleCallOffOrderProcessing(SaleOrderBlanketOrderCase):
             }
         )
         order.action_confirm()
-        self.assertIn(order.state, ["sale", "done"])
+        self.assertEqual(order.state, "sale")
         self.assertRecordValues(
             order.order_line,
             [
@@ -72,7 +72,7 @@ class TestSaleCallOffOrderProcessing(SaleOrderBlanketOrderCase):
         picking = line.blanket_move_ids.picking_id
         picking.action_assign()
         for move_line in picking.move_line_ids:
-            move_line.qty_done = move_line.reserved_uom_qty
+            move_line.picked = True
         picking._action_done()
 
         blanket_lines = self.blanket_so.order_line
@@ -114,13 +114,13 @@ class TestSaleCallOffOrderProcessing(SaleOrderBlanketOrderCase):
             }
         )
         order.action_confirm()
-        self.assertIn(order.state, ["sale", "done"])
+        self.assertEqual(order.state, "sale")
 
         # process the picking
         picking = order.order_line.blanket_move_ids.picking_id
         picking.action_assign()
         for move_line in picking.move_line_ids:
-            move_line.qty_done = move_line.reserved_uom_qty
+            move_line.picked = True
         picking._action_done()
 
         blanket_lines = self.blanket_so.order_line
