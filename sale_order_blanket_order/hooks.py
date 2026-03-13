@@ -42,3 +42,9 @@ def pre_init_hook(cr):
     cr.execute(
         "ALTER TABLE sale_order ADD COLUMN create_call_off_from_so_if_possible BOOLEAN"
     )
+
+    cr.execute("ALTER TABLE sale_order ADD COLUMN blanket_strict_packaging BOOLEAN")
+
+    cr.execute(
+        "ALTER TABLE sale_order_line ADD COLUMN blanket_strict_packaging BOOLEAN"
+    )

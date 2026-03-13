@@ -115,6 +115,23 @@ class SaleOrderBlanketOrderCase(BaseCommon):
         cls.so_model = cls.env["sale.order"]
         cls.call_off_domain = [("order_type", "=", "call_off")]
 
+        cls.product_2_pack2 = cls.env["product.packaging"].create(
+            {
+                "name": "Test Pack of 2",
+                "product_id": cls.product_2.id,
+                "qty": 2,
+                "sales": True,
+            }
+        )
+        cls.product_2_pack3 = cls.env["product.packaging"].create(
+            {
+                "name": "Test Pack of 3",
+                "product_id": cls.product_2.id,
+                "qty": 3,
+                "sales": True,
+            }
+        )
+
         # create a fake model to declare another reservation strategy
         cls.loader = FakeModelLoader(cls.env, cls.__module__)
         cls.loader.backup_registry()
@@ -161,3 +178,10 @@ class SaleOrderBlanketOrderCase(BaseCommon):
                 "location_id": location.id,
             }
         ).action_apply_inventory()
+
+    @classmethod
+    def _set_call_off_auto_create_mode(cls, value):
+        # Enable the auto create mode
+        cls.env["res.config.settings"].create(
+            {"create_call_off_from_so_if_possible": value}
+        ).execute()
