@@ -93,6 +93,40 @@ class SaleOrderLine(models.Model):
             """
         )
 
+    def _do_patch_compute_price_unit(self):
+        def _patch_compute_price_unit(self):
+            return self._patched_compute_price_unit(_patch_compute_price_unit.origin)
+
+        self._patch_method(
+            "_compute_price_unit",
+            _patch_compute_price_unit,
+        )
+
+    def _register_hook(self):
+        # this method is called at the end of the registry build, so we are
+        # sure that all the modules are loaded. We can use it to patch the
+        # _compute_price_unit method at the top of the call stack of the
+        # sale.order.line model to prevent the recompute of the price
+        # unit on confirmed blanket order lines
+        super()._register_hook()
+        self._do_patch_compute_price_unit()
+
+    def _patched_compute_price_unit(self, original_method):
+        """This method is the patched version of the _compute_price_unit method.
+        It is used to prevent the recompute of the price unit on confirmed blanket
+        order lines.
+
+        It's placed at the top of the call stack of the sale.order.line model to ensure
+        that the price unit is not recomputed on confirmed blanket order lines in all
+        the extensions of the sale.order.line model, even those that are not aware
+        of the blanket order concept.
+        """
+        to_compute = self.filtered(
+            lambda line: line.order_type != "blanket"
+            or line.state not in ("sale", "done")
+        )
+        return original_method(to_compute)
+
     @api.constrains("order_type", "price_unit")
     def _check_call_off_order_line_price(self):
         price_precision = self.env["decimal.precision"].precision_get("Product Price")
