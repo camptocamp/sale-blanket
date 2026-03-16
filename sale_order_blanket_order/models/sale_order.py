@@ -11,8 +11,6 @@ from odoo.osv import expression
 from odoo.osv.expression import FALSE_DOMAIN
 from odoo.tools import float_compare
 
-from odoo.addons.sale.models.sale_order import READONLY_FIELD_STATES
-
 
 class SaleOrder(models.Model):
     _inherit = "sale.order"
@@ -26,14 +24,12 @@ class SaleOrder(models.Model):
         default="order",
         required=True,
         help="Specifies the type of sale order: Order, Blanket, or Call-off.",
-        states=READONLY_FIELD_STATES,
         index=True,
     )
     blanket_order_id = fields.Many2one(
         "sale.order",
         string="Blanket Order",
         help="The blanket order that this call-off order is related to.",
-        states=READONLY_FIELD_STATES,
         index="btree_not_null",
     )
     blanket_order_id_domain = fields.Binary(
@@ -121,7 +117,6 @@ class SaleOrder(models.Model):
         help="When this option is enabled, the system will automatically create "
         "call-off orders when a sales order is confirmed and some lines refer to a "
         "blanket order.",
-        states=READONLY_FIELD_STATES,
     )
 
     show_deliver_remaining = fields.Boolean(
@@ -261,11 +256,11 @@ class SaleOrder(models.Model):
         else:
             count_by_blanket_order_id = {
                 group["blanket_order_id"][0]: group["blanket_order_id_count"]
-                for group in self.env["sale.order"].read_group(
+                for group in self.env["sale.order"]._read_group(
                     domain=[("blanket_order_id", "in", self._ids)],
-                    fields=["blanket_order_id:count"],
                     groupby=["blanket_order_id"],
-                    orderby="blanket_order_id.id",
+                    aggregates=["blanket_order_id:count"],
+                    order="blanket_order_id.id",
                 )
             }
             for order in self:

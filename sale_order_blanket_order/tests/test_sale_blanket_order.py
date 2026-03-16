@@ -4,7 +4,8 @@ import freezegun
 
 from odoo import Command
 from odoo.exceptions import ValidationError
-from odoo.tests.common import Form, RecordCapturer
+from odoo.tests import Form
+from odoo.tests.common import RecordCapturer
 
 from .common import SaleOrderBlanketOrderCase
 
@@ -88,7 +89,10 @@ class TestSaleBlanketOrder(SaleOrderBlanketOrderCase):
                 f"{self.blanket_so.name}."
             ),
         ):
-            order.action_confirm()
+            # The error is raised but the order' state is changed
+            # using a savepoint ensure we go back to the previous correct state
+            with self.env.cr.savepoint():
+                order.action_confirm()
         self.product_1.allow_blanket_order_overlap = True
         order.action_confirm()
 
@@ -185,7 +189,7 @@ class TestSaleBlanketOrder(SaleOrderBlanketOrderCase):
         picking = order.order_line.blanket_move_ids.picking_id
         picking.action_assign()
         for move_line in picking.move_line_ids:
-            move_line.qty_done = move_line.reserved_uom_qty
+            move_line.qty_done = move_line.quantity
         picking._action_done()
 
         delivery_line = self.blanket_so.order_line.filtered(

@@ -260,7 +260,7 @@ class TestSaleCallOffOrderProcessing(SaleOrderBlanketOrderCase):
         picking = line.blanket_move_ids.picking_id
         picking.action_assign()
         for move_line in picking.move_line_ids:
-            move_line.qty_done = move_line.reserved_uom_qty
+            move_line.qty_done = move_line.quantity
         picking._action_done()
 
         blanket_lines = self.blanket_so.order_line
@@ -308,7 +308,7 @@ class TestSaleCallOffOrderProcessing(SaleOrderBlanketOrderCase):
         picking = order.order_line.blanket_move_ids.picking_id
         picking.action_assign()
         for move_line in picking.move_line_ids:
-            move_line.qty_done = move_line.reserved_uom_qty
+            move_line.qty_done = move_line.quantity
         picking._action_done()
 
         # part of the quantity into the blanket order are now delivered

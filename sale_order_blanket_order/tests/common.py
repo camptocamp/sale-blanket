@@ -2,7 +2,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 from odoo_test_helper import FakeModelLoader
 
-from odoo import Command, fields, models
+from odoo import Command
 
 from odoo.addons.base.tests.common import BaseCommon
 
@@ -43,21 +43,24 @@ class SaleOrderBlanketOrderCase(BaseCommon):
         cls.product_1 = cls.env["product.product"].create(
             {
                 "name": "Product 1",
-                "type": "product",
+                "type": "consu",
+                "is_storable": True,
                 "taxes_id": [Command.link(cls.tax_fixed.id)],
             }
         )
         cls.product_2 = cls.env["product.product"].create(
             {
                 "name": "Product 2",
-                "type": "product",
+                "type": "consu",
+                "is_storable": True,
                 "taxes_id": [Command.link(cls.tax_fixed.id)],
             }
         )
         cls.product_3 = cls.env["product.product"].create(
             {
                 "name": "Product 3",
-                "type": "product",
+                "type": "consu",
+                "is_storable": True,
                 "taxes_id": [Command.link(cls.tax_fixed.id)],
             }
         )
@@ -137,41 +140,23 @@ class SaleOrderBlanketOrderCase(BaseCommon):
             }
         )
 
+    def setUp(self):
+        super().setUp()
+
         # create a fake model to declare another reservation strategy
-        cls.loader = FakeModelLoader(cls.env, cls.__module__)
-        cls.loader.backup_registry()
-        cls.addClassCleanup(cls.loader.restore_registry)
+        self.loader = FakeModelLoader(self.env, self.__module__)
+        self.loader.backup_registry()
+        from .fake_models import FakeSaleOrder
 
-        # pylint: disable=consider-merging-classes-inherited
-        class SO(models.Model):
-            _inherit = "sale.order"
+        self.loader.update_registry(
+            [
+                FakeSaleOrder,
+            ]
+        )
 
-            blanket_reservation_strategy = fields.Selection(
-                selection_add=[("fake", "For tests")],
-                ondelete={"fake": "cascade"},
-            )
-
-            def _blanket_order_reserve_call_off_remaining_qty(self):
-                # we need to override since our strategy is fake
-                (
-                    _to_reserve,
-                    other_orders,
-                ) = self._split_recrodset_for_reservation_strategy("fake")
-                return super(
-                    SO, other_orders
-                )._blanket_order_reserve_call_off_remaining_qty()
-
-            def _blanket_order_release_call_off_remaining_qty(self):
-                # we need to override since our strategy is fake
-                (
-                    _to_release,
-                    other_orders,
-                ) = self._split_recrodset_for_reservation_strategy("fake")
-                return super(
-                    SO, other_orders
-                )._blanket_order_release_call_off_remaining_qty()
-
-        cls.loader.update_registry([SO])
+    def tearDown(self):
+        self.loader.restore_registry()
+        return super().tearDown()
 
     @classmethod
     def _set_qty_in_loc_only(cls, product, qty, location=None):

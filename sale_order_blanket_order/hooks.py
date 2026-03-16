@@ -3,8 +3,9 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-def pre_init_hook(cr):
+def pre_init_hook(env):
     _logger.info("Create column order_type in sale_order with default value 'order'")
+    cr = env.cr
     cr.execute(
         "ALTER TABLE sale_order ADD COLUMN order_type varchar(255) DEFAULT 'order'"
     )

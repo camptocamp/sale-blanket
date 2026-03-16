@@ -36,10 +36,30 @@ jobs:
       matrix:
         include:
           - container: ghcr.io/oca/oca-ci/py3.10-odoo18.0:latest
+            include: "sale_blanket_order"
             name: test with Odoo
           - container: ghcr.io/oca/oca-ci/py3.10-ocb18.0:latest
+            include: "sale_blanket_order"
             name: test with OCB
             makepot: "true"
+          
+          - container: ghcr.io/oca/oca-ci/py3.10-odoo18.0:latest
+            include: "sale_order_blanket_order"
+            name: test with Odoo
+          - container: ghcr.io/oca/oca-ci/py3.10-ocb18.0:latest
+            include: "sale_order_blanket_order"
+            name: test with OCB
+            makepot: "true"
+          
+          # The following will fail with the following error if there are no other modules
+          # invalid module names, ignored: --http-interface=127.0.0.1 
+          # - container: ghcr.io/oca/oca-ci/py3.10-odoo18.0:latest
+          #   exclude: "sale_blanket_order,sale_order_blanket_order"
+          #   name: test with Odoo
+          # - container: ghcr.io/oca/oca-ci/py3.10-ocb18.0:latest
+          #   exclude: "sale_blanket_order,sale_order_blanket_order"
+          #   name: test with OCB
+          #   makepot: "true"
     services:
       postgres:
         image: postgres:12.0
@@ -50,6 +70,8 @@ jobs:
         ports:
           - 5432:5432
     env:
+      INCLUDE: "${{ matrix.include }}"
+      EXCLUDE: "${{ matrix.exclude }}"
       OCA_ENABLE_CHECKLOG_ODOO: "1"
     steps:
       - uses: actions/checkout@v4
