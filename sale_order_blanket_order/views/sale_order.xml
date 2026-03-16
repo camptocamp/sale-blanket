@@ -86,7 +86,7 @@
                 />
                 <field
                     name="blanket_strict_packaging"
-                    attrs="{'invisible': [('order_type', '!=', 'blanket')]"
+                    attrs="{'invisible': [('order_type', '!=', 'blanket')]}"
                 />
             </field>
             <field name="manual_delivery" position="after">

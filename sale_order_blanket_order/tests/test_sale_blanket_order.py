@@ -347,3 +347,20 @@ class TestSaleBlanketOrder(SaleOrderBlanketOrderCase):
             ValidationError, "The forecasted quantity cannot be less than the quantity"
         ):
             so_line_product_2.product_uom_qty = 1
+
+    def test_price_unit_not_recomputed_on_confirmed_blanket_order_lines(self):
+        self.blanket_so.action_confirm()
+        so_line_product_2 = self.blanket_so.order_line.filtered(
+            lambda line: line.product_id == self.product_2
+        )
+        original_price_unit = so_line_product_2.price_unit
+        new_price = original_price_unit + 10
+        self.product_2.list_price = new_price
+        self.assertEqual(so_line_product_2.product_uom_qty, 10)
+        so_line_product_2.product_uom_qty = 5
+        self.assertEqual(so_line_product_2.price_unit, original_price_unit)
+        # if we reset to draft and change the qty the price unit should be recomputed
+        self.blanket_so._action_cancel()
+        self.blanket_so.action_draft()
+        so_line_product_2.product_uom_qty = 10
+        self.assertEqual(so_line_product_2.price_unit, new_price)

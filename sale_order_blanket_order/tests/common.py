@@ -25,6 +25,11 @@ class SaleOrderBlanketOrderCase(BaseCommon):
         - Create a normal sale order with 2 lines.
         """
         super().setUpClass()
+        # Simulate the final registry loaded signal
+        # This method is called by the _register_hook
+        # of the sale.order.line model, but since we are in a test, we
+        # need to call it manually to patch the _compute_price_unit method
+        cls.env["sale.order.line"]._do_patch_compute_price_unit()
         # create a flat tax
         cls.tax_fixed = cls.env["account.tax"].create(
             {
