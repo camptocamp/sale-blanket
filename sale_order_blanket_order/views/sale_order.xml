@@ -2,7 +2,6 @@
 <!-- Copyright 2024 ACSONE SA/NV
      License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
 <odoo>
-
     <record model="ir.ui.view" id="sale_order_form_view">
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form" />
@@ -24,11 +23,9 @@
                 </button>
             </xpath>
             <xpath expr="//sheet//h1" position="before">
-                <span class="o_form_label"><field
-                        name="order_type"
-                        required="1"
-                        nolabel="1"
-                    /></span>
+                <span class="o_form_label">
+                    <field name="order_type" required="1" nolabel="1" />
+                </span>
             </xpath>
             <field name="partner_shipping_id" position="after">
                 <field name="blanket_order_id_domain" invisible="1" />
@@ -65,13 +62,13 @@
                     </div>
                     <div name="date_read_only" class="o_row oe_read_only">
                         <span>From <field
-                                name="blanket_validity_start_date"
-                                class='oe_inline'
-                            /></span>
+                            name="blanket_validity_start_date"
+                            class='oe_inline'
+                        /></span>
                         <span>To <field
-                                name="blanket_validity_end_date"
-                                class='oe_inline'
-                            /></span>
+                            name="blanket_validity_end_date"
+                            class='oe_inline'
+                        /></span>
                     </div>
                 </div>
                 <field name="is_blanket_reservation_strategy_editable" invisible="1" />
@@ -118,7 +115,7 @@
                     <label for="blanket_move_ids">Picking moves</label>
                     <field name="blanket_move_ids" />
                 </div>
-                 <div
+                <div
                     name="call_off_lines"
                     attrs="{'invisible': ['|', ('display_type', '!=', False), ('order_type', '!=', 'blanket')]}"
                 >
@@ -150,7 +147,6 @@
                     type="object"
                 />
             </xpath>
-
         </field>
     </record>
 
