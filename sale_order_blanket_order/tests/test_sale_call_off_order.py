@@ -58,11 +58,14 @@ class TestSaleCallOffOrder(SaleOrderBlanketOrderCase):
                 "blanket_order_id": self.blanket_so.id,
             }
         )
-        with freezegun.freeze_time("2024-01-01"), self.assertRaisesRegex(
-            ValidationError,
-            (
-                "The call-off order must be within the "
-                "validity period of the blanket order."
+        with (
+            freezegun.freeze_time("2024-01-01"),
+            self.assertRaisesRegex(
+                ValidationError,
+                (
+                    "The call-off order must be within the "
+                    "validity period of the blanket order."
+                ),
             ),
         ):
             order.action_confirm()

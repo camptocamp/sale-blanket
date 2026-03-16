@@ -116,9 +116,10 @@ class TestSaleBlanketOrder(SaleOrderBlanketOrderCase):
         self.blanket_so.action_confirm()
         self.assertTrue(self.blanket_so.blanket_need_to_be_finalized)
         self.blanket_so.flush_recordset()
-        with RecordCapturer(
-            self.so_model, self.call_off_domain
-        ) as captured, freezegun.freeze_time("2026-12-31"):
+        with (
+            RecordCapturer(self.so_model, self.call_off_domain) as captured,
+            freezegun.freeze_time("2026-12-31"),
+        ):
             self.so_model._cron_manage_blanket_order_eol()
         self.assertFalse(self.blanket_so.blanket_need_to_be_finalized)
         self.assertEqual(len(captured.records), 1)
@@ -199,9 +200,10 @@ class TestSaleBlanketOrder(SaleOrderBlanketOrderCase):
             ),
             0,
         )
-        with RecordCapturer(
-            self.so_model, self.call_off_domain
-        ) as captured, freezegun.freeze_time("2026-12-31"):
+        with (
+            RecordCapturer(self.so_model, self.call_off_domain) as captured,
+            freezegun.freeze_time("2026-12-31"),
+        ):
             self.so_model._cron_manage_blanket_order_eol()
         self.assertEqual(len(captured.records), 0)
 
@@ -233,9 +235,10 @@ class TestSaleBlanketOrder(SaleOrderBlanketOrderCase):
             order.action_confirm()
 
         self.assertEqual(self.blanket_so.blanket_need_to_be_finalized, True)
-        with RecordCapturer(
-            self.so_model, self.call_off_domain
-        ) as captured, freezegun.freeze_time("2026-12-31"):
+        with (
+            RecordCapturer(self.so_model, self.call_off_domain) as captured,
+            freezegun.freeze_time("2026-12-31"),
+        ):
             self.so_model._cron_manage_blanket_order_eol()
         self.assertFalse(self.blanket_so.blanket_need_to_be_finalized)
         self.assertEqual(len(captured.records), 1)
@@ -267,9 +270,12 @@ class TestSaleBlanketOrder(SaleOrderBlanketOrderCase):
         # is not finalized
         self.blanket_so.blanket_reservation_strategy = "fake"
         self.blanket_so._action_cancel()
-        with self.assertRaisesRegex(
-            ValidationError, "The reservation strategy cannot be modified"
-        ), self.env.cr.savepoint():
+        with (
+            self.assertRaisesRegex(
+                ValidationError, "The reservation strategy cannot be modified"
+            ),
+            self.env.cr.savepoint(),
+        ):
             # change is not allowed on canceled order
             self.blanket_so.blanket_reservation_strategy = "at_call_off"
         self.blanket_so.action_draft()
@@ -280,9 +286,12 @@ class TestSaleBlanketOrder(SaleOrderBlanketOrderCase):
             self.so_model._cron_manage_blanket_order_eol()
 
         self.assertFalse(self.blanket_so.blanket_need_to_be_finalized)
-        with self.assertRaisesRegex(
-            ValidationError, "The reservation strategy cannot be modified"
-        ), self.env.cr.savepoint():
+        with (
+            self.assertRaisesRegex(
+                ValidationError, "The reservation strategy cannot be modified"
+            ),
+            self.env.cr.savepoint(),
+        ):
             # change is not allowed on finalized order
             self.blanket_so.blanket_reservation_strategy = "fake"
 
@@ -295,9 +304,12 @@ class TestSaleBlanketOrder(SaleOrderBlanketOrderCase):
         # is not finalized
         self.blanket_so.blanket_eol_strategy = "deliver"
         self.blanket_so._action_cancel()
-        with self.assertRaisesRegex(
-            ValidationError, "The end-of-life strategy cannot be modified"
-        ), self.env.cr.savepoint():
+        with (
+            self.assertRaisesRegex(
+                ValidationError, "The end-of-life strategy cannot be modified"
+            ),
+            self.env.cr.savepoint(),
+        ):
             # change is not allowed on canceled order
             self.blanket_so.blanket_eol_strategy = False
         self.blanket_so.action_draft()
@@ -308,9 +320,12 @@ class TestSaleBlanketOrder(SaleOrderBlanketOrderCase):
             self.so_model._cron_manage_blanket_order_eol()
 
         self.assertFalse(self.blanket_so.blanket_need_to_be_finalized)
-        with self.assertRaisesRegex(
-            ValidationError, "The end-of-life strategy cannot be modified"
-        ), self.env.cr.savepoint():
+        with (
+            self.assertRaisesRegex(
+                ValidationError, "The end-of-life strategy cannot be modified"
+            ),
+            self.env.cr.savepoint(),
+        ):
             # change is not allowed on finalized order
             self.blanket_so.blanket_eol_strategy = "deliver"
 
