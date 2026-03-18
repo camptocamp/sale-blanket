@@ -1,12 +1,74 @@
 # Copyright 2024 ACSONE SA/NV
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 import freezegun
+from odoo_test_helper import FakeModelLoader
 
 from odoo import Command
 from odoo.exceptions import ValidationError
-from odoo.tests.common import Form, RecordCapturer
+from odoo.tests import Form
+from odoo.tests.common import RecordCapturer
 
 from .common import SaleOrderBlanketOrderCase
+
+
+class TestFakeSaleBlanketOrder(SaleOrderBlanketOrderCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # create a fake model to declare another reservation strategy
+        cls.loader = FakeModelLoader(cls.env, cls.__module__)
+        cls.loader.backup_registry()
+        from .fake_models import FakeSaleOrder
+
+        cls.loader.update_registry(
+            [
+                FakeSaleOrder,
+            ]
+        )
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.loader.restore_registry()
+        return super().tearDownClass()
+
+    # Remove tests that are incompatible with FakeModuleLoader
+    def check_attrs(self):
+        pass
+
+    # ======================================================================
+    def test_reservation_strategy_editable(self):
+        # change is allowed in draft state
+        self.blanket_so.blanket_reservation_strategy = "fake"
+        self.blanket_so.blanket_reservation_strategy = "at_call_off"
+        self.blanket_so.action_confirm()
+        # change is allowed after confirmation while the blanket order
+        # is not finalized
+        self.blanket_so.blanket_reservation_strategy = "fake"
+        self.blanket_so._action_cancel()
+        with (
+            self.assertRaisesRegex(
+                ValidationError, "The reservation strategy cannot be modified"
+            ),
+            self.env.cr.savepoint(),
+        ):
+            # change is not allowed on canceled order
+            self.blanket_so.blanket_reservation_strategy = "at_call_off"
+        self.blanket_so.action_draft()
+        # change is allowed in draft state
+        self.blanket_so.blanket_reservation_strategy = "at_call_off"
+        self.blanket_so.action_confirm()
+        with freezegun.freeze_time("2026-12-31"):
+            self.so_model._cron_manage_blanket_order_eol()
+
+        self.assertFalse(self.blanket_so.blanket_need_to_be_finalized)
+        with (
+            self.assertRaisesRegex(
+                ValidationError, "The reservation strategy cannot be modified"
+            ),
+            self.env.cr.savepoint(),
+        ):
+            # change is not allowed on finalized order
+            self.blanket_so.blanket_reservation_strategy = "fake"
 
 
 class TestSaleBlanketOrder(SaleOrderBlanketOrderCase):
@@ -81,13 +143,16 @@ class TestSaleBlanketOrder(SaleOrderBlanketOrderCase):
             }
         )
         # Validate a blanket order with a product that is already in the blanket order
-        with self.assertRaisesRegex(
-            ValidationError,
-            (
-                "The product 'Product 1' is already part of another blanket order "
-                f"{self.blanket_so.name}."
+        with (
+            self.assertRaisesRegex(
+                ValidationError,
+                (
+                    "The product 'Product 1' is already part of another blanket order "
+                    f"{self.blanket_so.name}."
+                ),
             ),
-        ), self.env.cr.savepoint():
+            self.env.cr.savepoint(),
+        ):
             order.action_confirm()
         self.product_1.allow_blanket_order_overlap = True
         order.action_confirm()
@@ -185,7 +250,7 @@ class TestSaleBlanketOrder(SaleOrderBlanketOrderCase):
         picking = order.order_line.blanket_move_ids.picking_id
         picking.action_assign()
         for move_line in picking.move_line_ids:
-            move_line.qty_done = move_line.reserved_uom_qty
+            move_line.picked = True
         picking._action_done()
 
         delivery_line = self.blanket_so.order_line.filtered(
@@ -260,40 +325,6 @@ class TestSaleBlanketOrder(SaleOrderBlanketOrderCase):
                 self.assertEqual(len(call_off), 1)
                 self.assertEqual(call_off.product_uom_qty, line.product_uom_qty)
             self.assertTrue(line.move_ids)
-
-    def test_reservation_strategy_editable(self):
-        # change is allowed in draft state
-        self.blanket_so.blanket_reservation_strategy = "fake"
-        self.blanket_so.blanket_reservation_strategy = "at_call_off"
-        self.blanket_so.action_confirm()
-        # change is allowed after confirmation while the blanket order
-        # is not finalized
-        self.blanket_so.blanket_reservation_strategy = "fake"
-        self.blanket_so._action_cancel()
-        with (
-            self.assertRaisesRegex(
-                ValidationError, "The reservation strategy cannot be modified"
-            ),
-            self.env.cr.savepoint(),
-        ):
-            # change is not allowed on canceled order
-            self.blanket_so.blanket_reservation_strategy = "at_call_off"
-        self.blanket_so.action_draft()
-        # change is allowed in draft state
-        self.blanket_so.blanket_reservation_strategy = "at_call_off"
-        self.blanket_so.action_confirm()
-        with freezegun.freeze_time("2026-12-31"):
-            self.so_model._cron_manage_blanket_order_eol()
-
-        self.assertFalse(self.blanket_so.blanket_need_to_be_finalized)
-        with (
-            self.assertRaisesRegex(
-                ValidationError, "The reservation strategy cannot be modified"
-            ),
-            self.env.cr.savepoint(),
-        ):
-            # change is not allowed on finalized order
-            self.blanket_so.blanket_reservation_strategy = "fake"
 
     def test_eol_strategy_editable(self):
         # change is allowed in draft state

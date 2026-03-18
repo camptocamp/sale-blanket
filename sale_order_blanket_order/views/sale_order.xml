@@ -12,8 +12,8 @@
                     name="action_view_call_off_orders"
                     class="oe_stat_button"
                     icon="fa-truck"
-                    attrs="{'invisible': [('call_off_order_count', '=', 0)]}"
                     groups="stock.group_stock_user"
+                    invisible="call_off_order_count == 0"
                 >
                     <field
                         name="call_off_order_count"
@@ -24,30 +24,37 @@
             </xpath>
             <xpath expr="//sheet//h1" position="before">
                 <span class="o_form_label">
-                    <field name="order_type" required="1" nolabel="1" />
+                    <field
+                        name="order_type"
+                        required="1"
+                        nolabel="1"
+                        readonly="state in ['cancel', 'sale']"
+                    />
                 </span>
             </xpath>
             <field name="partner_shipping_id" position="after">
                 <field name="blanket_order_id_domain" invisible="1" />
                 <field
                     name="blanket_order_id"
-                    attrs="{'invisible': [('order_type', '!=', 'call_off')], 'required': [('order_type', '=', 'call_off')]}"
                     domain="blanket_order_id_domain"
                     context="{'default_order_type': 'blanket', 'default_partner_id': partner_id, 'invisible_call_off_remaining_qty': 0}"
+                    invisible="order_type != 'call_off'"
+                    required="order_type == 'call_off'"
+                    readonly="state in ['cancel', 'sale']"
                 />
             </field>
             <field name="validity_date" position="after">
                 <label
                     for="blanket_validity_start_date"
                     string="Validity period"
-                    attrs="{'invisible': [('order_type', '!=', 'blanket')]}"
+                    invisible="order_type != 'blanket'"
                 />
-                <div attrs="{'invisible': [('order_type', '!=', 'blanket')]}">
+                <div invisible="order_type != 'blanket'">
                     <div name="date_edit_only" class="o_row oe_edit_only">
                         <field
                             name="blanket_validity_start_date"
-                            class='oe_inline'
-                            attrs="{'required':[('order_type', '=', 'blanket')]}"
+                            class="oe_inline"
+                            required="order_type == 'blanket'"
                         />
                         <i
                             class="fa fa-long-arrow-right mx-2"
@@ -56,41 +63,44 @@
                         />
                         <field
                             name="blanket_validity_end_date"
-                            class='oe_inline'
-                            attrs="{'required':[('order_type', '=', 'blanket')]}"
+                            class="oe_inline"
+                            required="order_type == 'blanket'"
                         />
                     </div>
                     <div name="date_read_only" class="o_row oe_read_only">
                         <span>From <field
                             name="blanket_validity_start_date"
-                            class='oe_inline'
+                            class="oe_inline"
                         /></span>
                         <span>To <field
                             name="blanket_validity_end_date"
-                            class='oe_inline'
+                            class="oe_inline"
                         /></span>
                     </div>
                 </div>
                 <field name="is_blanket_reservation_strategy_editable" invisible="1" />
                 <field
                     name="blanket_reservation_strategy"
-                    attrs="{'invisible': [('order_type', '!=', 'blanket')], 'readonly': [('is_blanket_reservation_strategy_editable', '=', False)]}"
+                    invisible="order_type != 'blanket'"
+                    readonly="not is_blanket_reservation_strategy_editable"
                 />
                 <field name="is_blanket_eol_strategy_editable" invisible="1" />
                 <field
                     name="blanket_eol_strategy"
-                    attrs="{'invisible': [('order_type', '!=', 'blanket')], 'readonly': [('is_blanket_eol_strategy_editable', '=', False)]}"
+                    invisible="order_type != 'blanket'"
+                    readonly="not is_blanket_eol_strategy_editable"
                 />
                 <field
                     name="blanket_strict_packaging"
-                    attrs="{'invisible': [('order_type', '!=', 'blanket')]}"
+                    invisible="order_type != 'blanket'"
                 />
             </field>
             <field name="manual_delivery" position="after">
                 <field
                     name="create_call_off_from_so_if_possible"
                     widget="boolean_toggle"
-                    attrs="{'invisible': [('order_type', '!=', 'order')]}"
+                    invisible="order_type != 'order'"
+                    readonly="state in ['cancel', 'sale']"
                 />
             </field>
             <xpath
@@ -100,8 +110,8 @@
                 <field name="order_type" invisible="1" />
                 <field
                     name="call_off_remaining_qty"
-                    attrs="{'invisible': [('order_type', '!=', 'blanket')]}"
                     readonly="1"
+                    invisible="order_type != 'blanket'"
                 />
             </xpath>
             <xpath
@@ -110,21 +120,21 @@
             >
                 <div
                     name="picking_moves"
-                    attrs="{'invisible': ['|', ('display_type', '!=', False), ('order_type', '!=', 'call_off')]}"
+                    invisible="(display_type or order_type != 'call_off')"
                 >
                     <label for="blanket_move_ids">Picking moves</label>
                     <field name="blanket_move_ids" />
                 </div>
                 <div
                     name="call_off_lines"
-                    attrs="{'invisible': ['|', ('display_type', '!=', False), ('order_type', '!=', 'blanket')]}"
+                    invisible="(display_type or order_type != 'blanket')"
                 >
                     <label for="call_off_line_ids">Call-off lines</label>
                     <field name="call_off_line_ids" />
                 </div>
             </xpath>
             <xpath
-                expr="//page[@name='order_lines']//tree//field[@name='product_uom_qty']"
+                expr="//page[@name='order_lines']//list//field[@name='product_uom_qty']"
                 position="after"
             >
                 <field name="order_type" invisible="1" />
@@ -143,8 +153,8 @@
                     name="action_deliver_remaining"
                     string="Deliver remaining"
                     class="oe_highlight"
-                    attrs="{'invisible': [('show_deliver_remaining', '=', False)]}"
                     type="object"
+                    invisible="not show_deliver_remaining"
                 />
             </xpath>
         </field>
@@ -228,7 +238,7 @@
         <field name="name">Blanket Orders</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">sale.order</field>
-        <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
+        <field name="view_mode">list,kanban,form,calendar,pivot,graph,activity</field>
         <field name="search_view_id" ref="sale.view_sales_order_filter" />
         <field name="domain">[
             ('order_type', '=', 'blanket')]</field>
@@ -240,7 +250,7 @@
 
     <record id="sale_order_action_view_blanket_tree" model="ir.actions.act_window.view">
         <field name="sequence" eval="1" />
-        <field name="view_mode">tree</field>
+        <field name="view_mode">list</field>
         <field name="view_id" ref="blanket_tree_view" />
         <field name="act_window_id" ref="action_blankets" />
     </record>
@@ -296,7 +306,7 @@
         <field name="name">Call-off Orders</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">sale.order</field>
-        <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
+        <field name="view_mode">list,kanban,form,calendar,pivot,graph,activity</field>
         <field name="search_view_id" ref="sale.view_sales_order_filter" />
         <field name="domain">[
             ('order_type', '=', 'call_off')]</field>
@@ -307,7 +317,7 @@
 
     <record id="sale_order_action_view_calloff_tree" model="ir.actions.act_window.view">
         <field name="sequence" eval="1" />
-        <field name="view_mode">tree</field>
+        <field name="view_mode">list</field>
         <field name="view_id" ref="sale.view_order_tree" />
         <field name="act_window_id" ref="action_calloffs" />
     </record>

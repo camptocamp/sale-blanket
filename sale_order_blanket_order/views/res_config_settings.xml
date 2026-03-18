@@ -7,7 +7,7 @@
         <field name="inherit_id" ref="sale.res_config_settings_view_form" />
         <field name="arch" type="xml">
             <!-- into quotation_order_setting_container -->
-            <div id="proforma_configuration" position="after">
+            <setting id="proforma_configuration" position="after">
                 <div
                     class="col-12 col-lg-6 o_setting_box"
                     id="sale_config_online_confirmation_pay"
@@ -25,16 +25,17 @@
                             groups="base.group_multi_company"
                         />
                         <div class="text-muted">
-                            If this option is enabled, a call-off order will be generated from a sale order if the sale order contains products
+                            <p
+                            >If this option is enabled, a call-off order will be generated from a sale order if the sale order contains products
                             that are part of an open blanket order. The call-off order will be generated with the same products and quantities as the
-                            sale order provided that the blanket order has enough available quantity. If the blanket order does not have enough available
-                            quantity, the call-off order will be generated with the available quantity and the original sale order line will be
-                            split into two lines: one line with the available quantity and one line with the remaining quantity. All the lines related to
-                            a blanket order will be moved to a new call-off order and the new call-off order will be confirmed.
+                            sale order provided that the blanket order has enough available quantity.</p>
+                            <p
+                            >If the blanket order does not have enough available quantity, the call-off order will be generated with the available quantity and the original sale order line will be split into two lines: one line with the available quantity and one line with the remaining quantity. All the lines related to
+                            a blanket order will be moved to a new call-off order and the new call-off order will be confirmed.</p>
                         </div>
                     </div>
                 </div>
-            </div>
+            </setting>
         </field>
     </record>
 </odoo>
