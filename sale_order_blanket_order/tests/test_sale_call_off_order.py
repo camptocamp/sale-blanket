@@ -103,10 +103,13 @@ class TestSaleCallOffOrder(SaleOrderBlanketOrderCase):
                 ],
             }
         )
-        with self.assertRaisesRegex(
-            ValidationError,
-            ("The product is not part of linked blanket order"),
-        ), self.env.cr.savepoint():
+        with (
+            self.assertRaisesRegex(
+                ValidationError,
+                ("The product is not part of linked blanket order"),
+            ),
+            self.env.cr.savepoint(),
+        ):
             order.action_confirm()
 
         order = self.env["sale.order"].create(
@@ -260,7 +263,7 @@ class TestSaleCallOffOrderProcessing(SaleOrderBlanketOrderCase):
         picking = line.blanket_move_ids.picking_id
         picking.action_assign()
         for move_line in picking.move_line_ids:
-            move_line.qty_done = move_line.reserved_uom_qty
+            move_line.picked = True
         picking._action_done()
 
         blanket_lines = self.blanket_so.order_line
@@ -308,7 +311,7 @@ class TestSaleCallOffOrderProcessing(SaleOrderBlanketOrderCase):
         picking = order.order_line.blanket_move_ids.picking_id
         picking.action_assign()
         for move_line in picking.move_line_ids:
-            move_line.qty_done = move_line.reserved_uom_qty
+            move_line.picked = True
         picking._action_done()
 
         # part of the quantity into the blanket order are now delivered

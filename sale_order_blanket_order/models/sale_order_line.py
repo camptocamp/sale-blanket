@@ -5,7 +5,40 @@ from collections import defaultdict
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 from odoo.osv.expression import expression
-from odoo.tools import float_compare, float_is_zero
+from odoo.tools import SQL, float_compare, float_is_zero
+
+
+# Code taken from server-ux/base_optional_quick_create
+# https://github.com/odoo/odoo/pull/110370
+def _patch_method(model_obj, name, method):
+    """Monkey-patch a method for all instances of this model. This replaces
+    the method called ``name`` by ``method`` in the given class.
+    The original method is then accessible via ``method.origin``, and it
+    can be restored with :meth:`~._revert_method`.
+
+    Example::
+
+        def do_write(self, values):
+            # do stuff, and call the original method
+            return do_write.origin(self, values)
+
+        # patch method write of model
+        model._patch_method('write', do_write)
+
+        # this will call do_write
+        records = model.search([...])
+        records.write(...)
+
+        # restore the original method
+        model._revert_method('write')
+    """
+    cls = type(model_obj)
+    origin = getattr(cls, name)
+    method.origin = origin
+    # propagate decorators from origin to method, and apply api decorator
+    wrapped = api.propagate(origin, method)
+    wrapped.origin = origin
+    setattr(cls, name, wrapped)
 
 
 class SaleOrderLine(models.Model):
@@ -97,7 +130,8 @@ class SaleOrderLine(models.Model):
         def _patch_compute_price_unit(self):
             return self._patched_compute_price_unit(_patch_compute_price_unit.origin)
 
-        self._patch_method(
+        _patch_method(
+            self,
             "_compute_price_unit",
             _patch_compute_price_unit,
         )
@@ -195,27 +229,8 @@ class SaleOrderLine(models.Model):
                         "date."
                     )
                 )
-            # here we use a plain SQL query to benefit of the daterange
-            # function available in PostgresSQL
-            # (http://www.postgresql.org/docs/current/static/rangetypes.html)
-            sql = """
-                SELECT
-                    sol.id
-                FROM
-                    sale_order_line sol
-                WHERE
-                    sol.blanket_validity_start_date is not null
-                    AND sol.blanket_validity_end_date is not null
-                    AND DATERANGE(
-                        sol.blanket_validity_start_date,
-                        sol.blanket_validity_end_date,
-                        '[]'
-                    ) && DATERANGE(
-                        %s::date,
-                         %s::date,
-                         '[]'
-                    )
-                """
+
+            #
             domain = [
                 ("call_off_remaining_qty", ">", 0),
                 ("order_id", "!=", order.id),
@@ -231,19 +246,36 @@ class SaleOrderLine(models.Model):
                 if isinstance(value, models.BaseModel):
                     value = value.id
                 domain.append((matching_field, "=", value))
-            _t, where, matching_field_values = expression(
-                domain, self, alias="sol"
-            ).query.get_sql()
-            sql += f"AND {where}"
-            self.env.cr.execute(
-                sql,
-                (
+
+            query = expression(domain, self).query
+
+            # here we use a plain SQL query to benefit of the daterange
+            # function available in PostgresSQL
+            # (http://www.postgresql.org/docs/current/static/rangetypes.html)
+            query.add_where(
+                SQL(
+                    """
+                blanket_validity_start_date is not null
+                AND blanket_validity_end_date is not null
+                AND DATERANGE(
+                    blanket_validity_start_date,
+                    blanket_validity_end_date,
+                    '[]'
+                ) && DATERANGE(
+                    %s::date,
+                        %s::date,
+                        '[]'
+                )
+                """,
+                    # Args
                     rec.blanket_validity_start_date,
                     rec.blanket_validity_end_date,
-                    *matching_field_values,
-                ),
+                )
             )
+
+            self.env.cr.execute(query.select())
             res = self.env.cr.fetchall()
+
             if res:
                 sol = self.browse(res[0][0])
                 if sol.product_id.allow_blanket_order_overlap:
@@ -268,17 +300,19 @@ class SaleOrderLine(models.Model):
         """
         self.flush_model(["product_uom_qty", "order_type", "blanket_line_id", "state"])
         blanket_lines = self.filtered(lambda line: line.order_type == "blanket")
-        res = self.read_group(
-            [("blanket_line_id", "in", blanket_lines.ids), ("state", "!=", "cancel")],
-            ["blanket_line_id", "product_uom_qty:sum"],
+        res = self._read_group(
+            [
+                ("blanket_line_id", "in", blanket_lines.ids),
+                ("state", "!=", "cancel"),
+            ],
             ["blanket_line_id"],
-            orderby="blanket_line_id.id",
+            ["product_uom_qty:sum"],
+            order="blanket_line_id",
         )
-        call_off_delivered_qty = {}
-        for r in res:
-            call_off_delivered_qty[r["blanket_line_id"][0]] = r["product_uom_qty"]
+
+        call_off_delivered_qty = dict(res)
         for line in self:
-            new_call_off_remaining_qty = call_off_delivered_qty.get(line.id, 0.0)
+            new_call_off_remaining_qty = call_off_delivered_qty.get(line, 0.0)
             if line in blanket_lines:
                 new_call_off_remaining_qty = (
                     line.product_uom_qty - new_call_off_remaining_qty

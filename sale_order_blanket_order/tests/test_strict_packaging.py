@@ -23,9 +23,12 @@ class TestStrictPackaging(SaleOrderBlanketOrderCase):
 
     @freezegun.freeze_time("2025-02-01")
     def test_call_off_non_multiple_of_packaging(self):
-        with self.assertRaisesRegex(
-            ValidationError, "The product is not part of linked"
-        ), self.env.cr.savepoint():
+        with (
+            self.assertRaisesRegex(
+                ValidationError, "The product is not part of linked"
+            ),
+            self.env.cr.savepoint(),
+        ):
             call_off_so = self.env["sale.order"].create(
                 {
                     "order_type": "call_off",

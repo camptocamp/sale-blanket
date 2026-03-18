@@ -18,7 +18,8 @@ class TestSaleNormalOrder(SaleOrderBlanketOrderCase):
         cls.product_4 = cls.env["product.product"].create(
             {
                 "name": "Product 4",
-                "type": "product",
+                "type": "consu",
+                "is_storable": True,
                 "taxes_id": [Command.link(cls.tax_fixed.id)],
             }
         )
