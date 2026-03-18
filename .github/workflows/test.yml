@@ -35,6 +35,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # Test sale_blanket_order alone
+          # since it conflicts with all other modules
           - container: ghcr.io/oca/oca-ci/py3.10-odoo18.0:latest
             include: "sale_blanket_order"
             name: test with Odoo
@@ -43,23 +45,14 @@ jobs:
             name: test with OCB
             makepot: "true"
           
+          # Test all the repository except sale_blanket_order
           - container: ghcr.io/oca/oca-ci/py3.10-odoo18.0:latest
-            include: "sale_order_blanket_order"
+            exclude: "sale_blanket_order"
             name: test with Odoo
           - container: ghcr.io/oca/oca-ci/py3.10-ocb18.0:latest
-            include: "sale_order_blanket_order"
+            exclude: "sale_blanket_order"
             name: test with OCB
             makepot: "true"
-          
-          # The following will fail with the following error if there are no other modules
-          # invalid module names, ignored: --http-interface=127.0.0.1 
-          # - container: ghcr.io/oca/oca-ci/py3.10-odoo18.0:latest
-          #   exclude: "sale_blanket_order,sale_order_blanket_order"
-          #   name: test with Odoo
-          # - container: ghcr.io/oca/oca-ci/py3.10-ocb18.0:latest
-          #   exclude: "sale_blanket_order,sale_order_blanket_order"
-          #   name: test with OCB
-          #   makepot: "true"
     services:
       postgres:
         image: postgres:12.0
