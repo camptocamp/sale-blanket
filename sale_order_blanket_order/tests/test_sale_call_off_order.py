@@ -103,7 +103,7 @@ class TestSaleCallOffOrder(SaleOrderBlanketOrderCase):
         with self.assertRaisesRegex(
             ValidationError,
             ("The product is not part of linked blanket order"),
-        ):
+        ), self.env.cr.savepoint():
             order.action_confirm()
 
         order = self.env["sale.order"].create(

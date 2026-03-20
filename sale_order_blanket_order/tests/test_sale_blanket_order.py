@@ -87,7 +87,7 @@ class TestSaleBlanketOrder(SaleOrderBlanketOrderCase):
                 "The product 'Product 1' is already part of another blanket order "
                 f"{self.blanket_so.name}."
             ),
-        ):
+        ), self.env.cr.savepoint():
             order.action_confirm()
         self.product_1.allow_blanket_order_overlap = True
         order.action_confirm()
