@@ -67,7 +67,7 @@ class TestSaleOrderDeliverRemainingWizard(SaleOrderBlanketOrderCase):
 
     def test_wizard_invalid_quantity(self):
         wizard = self._get_wizard(self.blanket_so)
-        with self.assertRaises(UserError):
+        with self.assertRaises(UserError), self.env.cr.savepoint():
             wizard.wizard_line_ids[0].qty_to_deliver = -1
         with self.assertRaises(UserError):
             wizard.wizard_line_ids[0].qty_to_deliver = 1000
