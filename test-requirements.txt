@@ -1,1 +1,2 @@
 odoo_test_helper
+odoo-addon-sale_stock_prebook @ git+https://github.com/OCA/sale-prebook.git@refs/pull/13/head#subdirectory=sale_stock_prebook
