@@ -259,14 +259,10 @@ class SaleOrder(models.Model):
                 domain=[("blanket_order_id", "in", self._ids)],
                 groupby=["blanket_order_id"],
                 aggregates=["blanket_order_id:count"],
-                order="blanket_order_id.id",
             )
-            count_by_blanket_order_id = {
-                group["blanket_order_id"][0]: group["blanket_order_id_count"]
-                for group in grouped_orders
-            }
+            count_by_blanket_order_id = dict(grouped_orders)
             for order in self:
-                order.call_off_order_count = count_by_blanket_order_id.get(order.id, 0)
+                order.call_off_order_count = count_by_blanket_order_id.get(order, 0)
 
     @api.depends("blanket_need_to_be_finalized", "state", "order_type")
     def _compute_is_blanket_reservation_strategy_editable(self):
