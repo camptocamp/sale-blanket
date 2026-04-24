@@ -250,18 +250,20 @@ class SaleOrder(models.Model):
 
     @api.depends("call_off_order_ids")
     def _compute_call_off_order_count(self):
+        # Use _ids to see the NewId instances
         if not any(self.call_off_order_ids._ids):
             for order in self:
                 order.call_off_order_count = len(order.call_off_order_ids)
         else:
+            grouped_orders = self.env["sale.order"]._read_group(
+                domain=[("blanket_order_id", "in", self._ids)],
+                groupby=["blanket_order_id"],
+                aggregates=["blanket_order_id:count"],
+                order="blanket_order_id.id",
+            )
             count_by_blanket_order_id = {
                 group["blanket_order_id"][0]: group["blanket_order_id_count"]
-                for group in self.env["sale.order"]._read_group(
-                    domain=[("blanket_order_id", "in", self._ids)],
-                    groupby=["blanket_order_id"],
-                    aggregates=["blanket_order_id:count"],
-                    order="blanket_order_id.id",
-                )
+                for group in grouped_orders
             }
             for order in self:
                 order.call_off_order_count = count_by_blanket_order_id.get(order.id, 0)
