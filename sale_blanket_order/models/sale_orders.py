@@ -94,11 +94,18 @@ class SaleOrderLine(models.Model):
             return non_date_bo_lines[0]
 
     def _get_eligible_bo_lines_domain(self, base_qty):
+        today = fields.Date.today()
+        # Keep only blanket order lines that can actually satisfy this sale line:
+        # same product and currency, enough remaining quantity, open contract,
+        # and a validity period that has already started.
         filters = [
             ("product_id", "=", self.product_id.id),
             ("remaining_qty", ">=", base_qty),
             ("currency_id", "=", self.order_id.currency_id.id),
             ("order_id.state", "=", "open"),
+            "|",
+            ("order_id.validity_start_date", "=", False),
+            ("order_id.validity_start_date", "<=", today),
         ]
         if self.order_id.partner_id:
             filters.append(("partner_id", "=", self.order_id.partner_id.id))
