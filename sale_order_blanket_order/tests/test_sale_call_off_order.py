@@ -174,7 +174,7 @@ class TestSaleCallOffOrder(SaleOrderBlanketOrderCase):
                     "qty_available_today": blanket_line.qty_available_today,
                     "price_tax": 0.0,
                     "price_total": 0.0,
-                    "tax_id": [],
+                    "tax_ids": [],
                 }
             ],
         )
@@ -214,6 +214,40 @@ class TestSaleCallOffOrder(SaleOrderBlanketOrderCase):
             ]
         )
         self.assertEqual(self.blanket_so.call_off_order_count, 2)
+
+    def _call_off_units_from_pack(self, quantities):
+        blanket_line = self.blanket_so.order_line.filtered(
+            lambda line: line.product_id == self.product_2
+        )
+        blanket_line.write(
+            {"product_uom_id": self.product_2_pack3.id, "product_uom_qty": 1}
+        )
+        self.blanket_so.action_confirm()
+        for qty in quantities:
+            self.env["sale.order"].create(
+                {
+                    "order_type": "call_off",
+                    "partner_id": self.partner.id,
+                    "blanket_order_id": self.blanket_so.id,
+                    "order_line": [
+                        Command.create(
+                            {"product_id": self.product_2.id, "product_uom_qty": qty}
+                        )
+                    ],
+                }
+            ).action_confirm()
+        self.assertAlmostEqual(blanket_line.call_off_remaining_qty, 0.0)
+        self.assertEqual(blanket_line.move_ids.mapped("product_qty"), quantities)
+
+    @freezegun.freeze_time("2025-02-01")
+    def test_call_off_units_from_pack(self):
+        self._call_off_units_from_pack([1.0, 2.0])
+
+    @freezegun.freeze_time("2025-02-01")
+    def test_call_off_units_from_pack_one_by_one(self):
+        # core rounds qty_procured per move (0.33 pack each): the last unit
+        # must still fit in what's left on the blanket line
+        self._call_off_units_from_pack([1.0, 1.0, 1.0])
 
 
 class TestSaleCallOffOrderProcessing(SaleOrderBlanketOrderCase):
@@ -356,4 +390,4 @@ class TestSaleAutoDoneCallOffOrderProcessing(TestSaleCallOffOrderProcessing):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.env.user.groups_id += cls.env.ref("sale.group_auto_done_setting")
+        cls.env.user.group_ids += cls.env.ref("sale.group_auto_done_setting")
